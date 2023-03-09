@@ -1,0 +1,9 @@
+# ninja log v5
+1	860	7000284813034551	MASTER_autogen/timestamp	2c25fce8d5d9b76a
+1	860	7000284813034551	MASTER_autogen/mocs_compilation.cpp	2c25fce8d5d9b76a
+1	860	7000284813034551	E:/projects_gitee/graduation_pro/QT/build-MASTER-Desktop_Qt_6_4_1_MinGW_64_bit-Debug/MASTER_autogen/timestamp	2c25fce8d5d9b76a
+1	860	7000284813034551	E:/projects_gitee/graduation_pro/QT/build-MASTER-Desktop_Qt_6_4_1_MinGW_64_bit-Debug/MASTER_autogen/mocs_compilation.cpp	2c25fce8d5d9b76a
+861	1990	7000284827471870	CMakeFiles/MASTER.dir/MASTER_autogen/mocs_compilation.cpp.obj	8a292f67a1f51577
+869	2016	7000284827731096	CMakeFiles/MASTER.dir/main.cpp.obj	bc77a6f3b9805335
+864	2047	7000284828030087	CMakeFiles/MASTER.dir/mainwindow.cpp.obj	99afd3e4e1a60c2f
+2047	2224	7000284829783944	MASTER.exe	f7ea0b7f159e2c7f
