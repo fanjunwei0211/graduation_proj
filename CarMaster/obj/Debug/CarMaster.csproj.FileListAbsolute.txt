@@ -1,0 +1,11 @@
+E:\project\Csharp\CarMaster\bin\Debug\CarMaster.exe.config
+E:\project\Csharp\CarMaster\bin\Debug\CarMaster.exe
+E:\project\Csharp\CarMaster\bin\Debug\CarMaster.pdb
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.AssemblyReference.cache
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.SuggestedBindingRedirects.cache
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.Form1.resources
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.Properties.Resources.resources
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.GenerateResource.cache
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.CoreCompileInputs.cache
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.exe
+E:\project\Csharp\CarMaster\obj\Debug\CarMaster.pdb
