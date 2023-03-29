@@ -31,4 +31,7 @@ graduation_pro/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
-  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h
+  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
+  ..\bsp\control.h \
+  D:\software\keil5\ARM\ARMCLANG\Bin\..\include\string.h ..\bsp\JY901.h \
+  ..\bsp\led.h ..\bsp\key.h ..\bsp\pid.h ..\bsp\delay.h ..\bsp\sys.h

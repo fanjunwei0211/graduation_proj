@@ -9,3 +9,14 @@ E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.GenerateResource.cache
 E:\project\Csharp\CarMaster\obj\Debug\CarMaster.csproj.CoreCompileInputs.cache
 E:\project\Csharp\CarMaster\obj\Debug\CarMaster.exe
 E:\project\Csharp\CarMaster\obj\Debug\CarMaster.pdb
+E:\projects_gitee\graduation\CarMaster\bin\Debug\CarMaster.exe.config
+E:\projects_gitee\graduation\CarMaster\bin\Debug\CarMaster.exe
+E:\projects_gitee\graduation\CarMaster\bin\Debug\CarMaster.pdb
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.csproj.AssemblyReference.cache
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.csproj.SuggestedBindingRedirects.cache
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.Form1.resources
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.Properties.Resources.resources
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.csproj.GenerateResource.cache
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.csproj.CoreCompileInputs.cache
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.exe
+E:\projects_gitee\graduation\CarMaster\obj\Debug\CarMaster.pdb

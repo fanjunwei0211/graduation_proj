@@ -1,5 +1,6 @@
 --cpu=Cortex-M4.fp.sp
 "graduation_pro\startup_stm32f407xx.o"
+"graduation_pro\delay.o"
 "graduation_pro\main.o"
 "graduation_pro\gpio.o"
 "graduation_pro\tim.o"
@@ -23,6 +24,12 @@
 "graduation_pro\stm32f4xx_hal_exti.o"
 "graduation_pro\stm32f4xx_hal_uart.o"
 "graduation_pro\system_stm32f4xx.o"
+"graduation_pro\control.o"
+"graduation_pro\pid.o"
+"graduation_pro\jy901.o"
+"graduation_pro\led.o"
+"graduation_pro\key.o"
+"graduation_pro\laser.o"
 --strict --scatter "graduation_pro\graduation_pro.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

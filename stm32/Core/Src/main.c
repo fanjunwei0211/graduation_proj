@@ -24,7 +24,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "control.h"
+#include "jy901.h"
+#include "led.h"
+#include "key.h"
+#include "pid.h"
+#include "delay.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,7 +86,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+	delay_init(168);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -98,7 +103,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+	HWT_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,6 +113,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		Led_Flash(10);
+		delay_ms(50);
   }
   /* USER CODE END 3 */
 }
@@ -158,7 +165,15 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart==&huart1)
+	{
+		CopeSerial2Data(TxBuffer_T);//处理数据
+		HAL_UART_Receive_IT(&huart1,&TxBuffer_T,1);	
+		yaw=(float)stcAngle.Angle[2]/32768*180;
+	}
+}
 /* USER CODE END 4 */
 
 /**
