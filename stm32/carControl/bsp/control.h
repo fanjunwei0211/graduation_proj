@@ -13,10 +13,12 @@
 extern float yaw;
 extern char isStraight;
 extern pid_type_def angControl_pid;
+extern volatile int speedLeft,speedRight;
 
 
 void HWT_init();
 void SpeedSet(int left, int right);
 float AngleCorrect(float ang);
+void DirectionSet(char mode);
  
 #endif

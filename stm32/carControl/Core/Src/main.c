@@ -103,6 +103,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM14_Init();
   MX_TIM7_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	HWT_init();
 	__HAL_TIM_CLEAR_FLAG(&htim14, TIM_FLAG_UPDATE);
@@ -113,80 +114,47 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
-//	uint16_t temp = 0;
-//	
-//	int32_t tagvelocity = 0;
-//	uint8_t nAddr = 0x03;
-//	NiM_clearErrorState(nAddr);            //故障状态清除
-//	NiM_clearErrorState(nAddr+1);            //故障状态清除
-//	delay_ms(10);
-//	NiM_powerOff(nAddr);   
-//	NiM_powerOff(nAddr+1); 
+  /* USER CODE BEGIN WHILE */ 
 //	delay_ms(500);
-
-//	
-//	NiM_changeWorkMode(nAddr,VELOCITY_MODE);////设置为速度模式
-//	NiM_changeWorkMode(nAddr+1,VELOCITY_MODE);////设置为速度模式
-//	delay_ms(50);
-//	
-//	delay_ms(10);
-//	NiM_powerOn(nAddr);       
-//	NiM_powerOn(nAddr+1);     
-//	delay_ms(10);	//使能电机
-//	tagvelocity = 100;//100000/10000*60=600rpm
-//	NiM_moveVelocity(nAddr,tagvelocity);//电机以600rpm正转.
-//	NiM_moveVelocity(nAddr+1,tagvelocity);//电机以600rpm正转
-//	delay_ms(1000);
-//	tagvelocity = -100;//-600rpm
-//	NiM_moveVelocity(nAddr,tagvelocity);//电机以600rpm反转
-//	NiM_moveVelocity(nAddr+1,tagvelocity);//电机以600rpm正转
-//	delay_ms(1000);
-//	tagvelocity = 500;//1200rpm
-//	NiM_moveVelocity(nAddr,tagvelocity);//电机正1200rpm正转
-//	NiM_moveVelocity(nAddr+1,tagvelocity);//电机以600rpm正转
-
-//	delay_ms(1000);
-//	NiM_powerOff(nAddr);
-//	NiM_powerOff(nAddr+1);   
-	delay_ms(500);
-	NiM_changeWorkMode(1,VELOCITY_MODE);
-	NiM_changeWorkMode(2,VELOCITY_MODE);
-	NiM_changeWorkMode(3,VELOCITY_MODE);
-	NiM_changeWorkMode(4,VELOCITY_MODE);
-	NiM_powerOn(1);
-	NiM_powerOn(2);
-	NiM_powerOn(3);
-	NiM_powerOn(4);
-	isStraight = 0;
-	SpeedSet(200,200);
-	delay_ms(2000);
-	isStraight = 0;
-	SpeedSet(-200,-200);
-	delay_ms(2000);
-	isStraight = 1;
-	SpeedSet(200,200);
-//	NiM_moveVelocity(1,200);
-//	NiM_moveVelocity(2,-200);
-	delay_ms(2000);
-	isStraight = 1;
-	SpeedSet(-200,-200);
-//	NiM_moveVelocity(1,-200);
-//	NiM_moveVelocity(2,200);
-	delay_ms(2000);
+//	NiM_changeWorkMode(1,VELOCITY_MODE);
+//	NiM_changeWorkMode(2,VELOCITY_MODE);
+//	NiM_changeWorkMode(3,VELOCITY_MODE);
+//	NiM_changeWorkMode(4,VELOCITY_MODE);
+//	NiM_powerOn(1);
+//	NiM_powerOn(2);
+//	NiM_powerOn(3);
+//	NiM_powerOn(4);
+//	isStraight = 0;
+//	SpeedSet(200,200);
+//	delay_ms(2000);
+//	isStraight = 0;
+//	SpeedSet(-200,-200);
+//	delay_ms(2000);
+//	isStraight = 1;
+//	SpeedSet(200,200);
+////	NiM_moveVelocity(1,200);
+////	NiM_moveVelocity(2,-200);
+//	delay_ms(2000);
+//	isStraight = 1;
+//	SpeedSet(-200,-200);
+////	NiM_moveVelocity(1,-200);
+////	NiM_moveVelocity(2,200);
+//	delay_ms(2000);
 	NiM_powerOff(1);
 	NiM_powerOff(2);
 	NiM_powerOff(3);
 	NiM_powerOff(4);
+	DirectionSet(0);
+	delay_ms(3000);
+	DirectionSet(1);
+	delay_ms(3000);
+	DirectionSet(0);
 	while (1)
   {
 //		LaserDistanceGet(&MBRTUHandle,0x06,0x0001,1);
 //		
 //		LaserDistanceGet(&MBRTUHandle,0x05,0x0001,1);
 //		LaserDistanceGet(&MBRTUHandle,0x04,0x0001,1);
-		Led_Flash(1);
-		HAL_Delay(500);
 
     /* USER CODE END WHILE */
 
@@ -280,6 +248,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	//5ms定时激光测距仪T3.5时间用
 	if(htim->Instance == htim14.Instance)
 	{
+		Led_Flash(100);
 		delay14++;
 		if(delay14 >5)//delay14*5ms定时
 		{
