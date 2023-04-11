@@ -31,6 +31,9 @@
 #include "pid.h"
 #include "delay.h"
 #include "laser.h"
+#include "modbus.h"
+#include "nimotion.h"
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,6 +54,7 @@
 
 /* USER CODE BEGIN PV */
 uint8_t g_Uart2RxByte;
+uint8_t uart3_res;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,35 +96,91 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM14_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 	HWT_init();
 	__HAL_TIM_CLEAR_FLAG(&htim14, TIM_FLAG_UPDATE);
-  HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);
 	HAL_TIM_Base_Start_IT(&htim14);
+	HAL_TIM_Base_Start_IT(&htim7);
+	HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);
+	HAL_UART_Receive_IT(&huart3,&uart3_res,1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	laserOpenClose(4,0);
-	laserOpenClose(5,0);
-	laserOpenClose(6,0);
+
+//	uint16_t temp = 0;
+//	
+//	int32_t tagvelocity = 0;
+//	uint8_t nAddr = 0x03;
+//	NiM_clearErrorState(nAddr);            //¹ÊÕÏ×´Ì¬Çå³ý
+//	NiM_clearErrorState(nAddr+1);            //¹ÊÕÏ×´Ì¬Çå³ý
+//	delay_ms(10);
+//	NiM_powerOff(nAddr);   
+//	NiM_powerOff(nAddr+1); 
+//	delay_ms(500);
+
+//	
+//	NiM_changeWorkMode(nAddr,VELOCITY_MODE);////ÉèÖÃÎªËÙ¶ÈÄ£Ê½
+//	NiM_changeWorkMode(nAddr+1,VELOCITY_MODE);////ÉèÖÃÎªËÙ¶ÈÄ£Ê½
+//	delay_ms(50);
+//	
+//	delay_ms(10);
+//	NiM_powerOn(nAddr);       
+//	NiM_powerOn(nAddr+1);     
+//	delay_ms(10);	//Ê¹ÄÜµç»ú
+//	tagvelocity = 100;//100000/10000*60=600rpm
+//	NiM_moveVelocity(nAddr,tagvelocity);//µç»úÒÔ600rpmÕý×ª.
+//	NiM_moveVelocity(nAddr+1,tagvelocity);//µç»úÒÔ600rpmÕý×ª
+//	delay_ms(1000);
+//	tagvelocity = -100;//-600rpm
+//	NiM_moveVelocity(nAddr,tagvelocity);//µç»úÒÔ600rpm·´×ª
+//	NiM_moveVelocity(nAddr+1,tagvelocity);//µç»úÒÔ600rpmÕý×ª
+//	delay_ms(1000);
+//	tagvelocity = 500;//1200rpm
+//	NiM_moveVelocity(nAddr,tagvelocity);//µç»úÕý1200rpmÕý×ª
+//	NiM_moveVelocity(nAddr+1,tagvelocity);//µç»úÒÔ600rpmÕý×ª
+
+//	delay_ms(1000);
+//	NiM_powerOff(nAddr);
+//	NiM_powerOff(nAddr+1);   
+	delay_ms(500);
+	NiM_changeWorkMode(1,VELOCITY_MODE);
+	NiM_changeWorkMode(2,VELOCITY_MODE);
+	NiM_changeWorkMode(3,VELOCITY_MODE);
+	NiM_changeWorkMode(4,VELOCITY_MODE);
+	NiM_powerOn(1);
+	NiM_powerOn(2);
+	NiM_powerOn(3);
+	NiM_powerOn(4);
+	isStraight = 0;
+	SpeedSet(200,200);
+	delay_ms(2000);
+	isStraight = 0;
+	SpeedSet(-200,-200);
+	delay_ms(2000);
+	isStraight = 1;
+	SpeedSet(200,200);
+//	NiM_moveVelocity(1,200);
+//	NiM_moveVelocity(2,-200);
+	delay_ms(2000);
+	isStraight = 1;
+	SpeedSet(-200,-200);
+//	NiM_moveVelocity(1,-200);
+//	NiM_moveVelocity(2,200);
+	delay_ms(2000);
+	NiM_powerOff(1);
+	NiM_powerOff(2);
+	NiM_powerOff(3);
+	NiM_powerOff(4);
 	while (1)
   {
-
-		//040300030001745F   4å·è¿žç»­å‘é€
-		//050300030001758E   5å·è¿žç»­å‘é€
-		//06030003000175BD	 6å·è¿žç»­æµ‹è·
-		//060300020001247D   æ‰“å¼€æ¿€å…‰
-		//060300020000E5BD   å…³é—­æ¿€å…‰
-		//050300020001244Eæ‰“å¼€æ¿€å…‰
-		//050300020000E58Eå…³é—­æ¿€å…‰
 //		LaserDistanceGet(&MBRTUHandle,0x06,0x0001,1);
 //		
 //		LaserDistanceGet(&MBRTUHandle,0x05,0x0001,1);
@@ -185,39 +245,55 @@ void SystemClock_Config(void)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	
-	//é™€èžºä»ªä¸²å£å¤„ç†
+	//ÍÓÂÝÒÇ´®¿ÚÊý¾Ý½ÓÊÕÖÐ¶Ï
 	if(huart->Instance == huart1.Instance)
 	{
-		CopeSerial2Data(TxBuffer_T);//å¤„ç†æ•°æ®
+		CopeSerial2Data(TxBuffer_T);//ÍÓÂÝÒÇÊý¾Ý½âËã
 		HAL_UART_Receive_IT(&huart1,&TxBuffer_T,1);	
 		yaw=(float)stcAngle.Angle[2]/32768*180;
 	}
-	//æ¿€å…‰æµ‹è·ä»ªä¸²å£å¤„ç†
+	//¼¤¹â²â¾àÒÇ´®¿ÚÊý¾Ý½ÓÊÕÖÐ¶Ï
 	if(huart->Instance == huart2.Instance)
 	{
-//		MBRTUMasterRecvByteISRCallback(&MBRTUHandle, g_Uart2RxByte);
-		HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);  // æ³¨å†ŒæŽ¥æ”¶
+		HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);  // ¼¤¹â²â¾àÒÇÊý¾Ý½âËã
 		LaserSerial2Data(g_Uart2RxByte);
+	}
+	//µç»ú´®¿ÚÊý¾Ý½ÓÊÕÖÐ¶Ï
+	if(huart->Instance == huart3.Instance)
+	{
+		HAL_UART_Receive_IT(&huart3,&uart3_res,1); 	//¶ÁÈ¡½ÓÊÕµ½µÄÊý¾Ý
+		if(RS485_RX_CNT<64)
+		{
+			RS485_RX_BUF[RS485_RX_CNT]=uart3_res;		//¼ÇÂ¼½ÓÊÕµ½µÄÖµ
+			RS485_RX_CNT++;						//½ÓÊÕÊý¾ÝÔö¼Ó1 
+			__HAL_TIM_SET_COUNTER(&htim7,0);
+			HAL_TIM_Base_Start_IT(&htim7);
+		} 
+		else RS485_RX_CNT=0;
+		
 	}
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	static uint8_t num=4;
 	static int delay14=0;
-	//5mså®šæ—¶ç”ŸæˆModBusä¸­T3.5éœ€æ±‚
+	//5ms¶¨Ê±¼¤¹â²â¾àÒÇT3.5Ê±¼äÓÃ
 	if(htim->Instance == htim14.Instance)
 	{
-		
-//		MBRTUMasterTimerISRCallback(&MBRTUHandle);
 		delay14++;
-		if(delay14 >5)//delay14*5msæ£€æµ‹ä¸€ä¸ª
+		if(delay14 >5)//delay14*5ms¶¨Ê±
 		{
 			LaserDistanceGet(&MBRTUHandle,num,0x0001,1);
 			num++;
 			if(num>6) num=4;
 			delay14 = 0;
 		}
-		
+	}
+	//2msÌá¹©µç»ú·µ»ØÊý¾Ý½ÓÊÕÍê±ÏÐÅºÅ
+	if(htim->Instance == htim7.Instance)
+	{
+		RTU_FLAG=1;
+		HAL_TIM_Base_Stop_IT(&htim7);
 	}
 }
 /* USER CODE END 4 */

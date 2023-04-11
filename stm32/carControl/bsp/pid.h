@@ -1,96 +1,98 @@
 /**
-  ******************************************************************************
-  * @file		 pid.h
-  * @author  Ginger
-  * @version V1.0.0
-  * @date    2015/11/14
-  * @brief   
-  ******************************************************************************
-  * @attention
+  ****************************(C) COPYRIGHT 2016 DJI****************************
+  * @file       pid.c/h
+  * @brief      pidÊµÏÖº¯Êı£¬°üÀ¨³õÊ¼»¯£¬PID¼ÆËãº¯Êı£¬
+  * @note       
+  * @history
+  *  Version    Date            Author          Modification
+  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
   *
-  ******************************************************************************
+  @verbatim
+  ==============================================================================
+
+  ==============================================================================
+  @endverbatim
+  ****************************(C) COPYRIGHT 2016 DJI****************************
   */
-
-/* Includes ------------------------------------------------------------------*/
-
-#ifndef _PID_H
-#define _PID_H
-
-#include "stdint.h"
-#define ABS(x) ((x > 0) ? x : -x)
-typedef enum
+#ifndef PID_H
+#define PID_H
+#include "sys.h"
+enum PID_MODE
 {
+    PID_POSITION = 0,
+    PID_DELTA
+};
 
-  PID_Position,
-  PID_Speed
-
-} PID_ID;
-
-typedef struct _PID_TypeDef
+typedef struct
 {
-  PID_ID id;
+    uint8_t mode;
+    //PID Èı²ÎÊı
+    fp32 Kp;
+    fp32 Ki;
+    fp32 Kd;
 
-  float target; //ç›®æ ‡å€¼
-  float lastNoneZeroTarget;
-  float kp;
-  float ki;
-  float kd;
+    fp32 max_out;  //×î´óÊä³ö
+    fp32 max_iout; //×î´ó»ı·ÖÊä³ö
 
-  float measure;     //æµ‹é‡å€¼
-  float err;         //è¯¯å·®
-  float last_err;    //ä¸Šæ¬¡è¯¯å·®
-  float previous_err;
+    fp32 set;
+    fp32 fdb;
 
-  float pout;
-  float iout;
-  float dout;
+    fp32 out;
+    fp32 Pout;
+    fp32 Iout;
+    fp32 Dout;
+    fp32 Dbuf[3];  //Î¢·ÖÏî 0×îĞÂ 1ÉÏÒ»´Î 2ÉÏÉÏ´Î
+    fp32 error[3]; //Îó²îÏî 0×îĞÂ 1ÉÏÒ»´Î 2ÉÏÉÏ´Î
 
-  float output;        //æœ¬æ¬¡è¾“å‡º
-  float last_output;   //ä¸Šæ¬¡è¾“å‡º
+} pid_type_def;
+/**
+  * @brief          pid struct data init
+  * @param[out]     pid: PID struct data point
+  * @param[in]      mode: PID_POSITION: normal pid
+  *                 PID_DELTA: delta pid
+  * @param[in]      PID: 0: kp, 1: ki, 2:kd
+  * @param[in]      max_out: pid max out
+  * @param[in]      max_iout: pid max iout
+  * @retval         none
+  */
+/**
+  * @brief          pid struct data init
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @param[in]      mode: PID_POSITION:ÆÕÍ¨PID
+  *                 PID_DELTA: ²î·ÖPID
+  * @param[in]      PID: 0: kp, 1: ki, 2:kd
+  * @param[in]      max_out: pid×î´óÊä³ö
+  * @param[in]      max_iout: pid×î´ó»ı·ÖÊä³ö
+  * @retval         none
+  */
+extern void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout);
 
-  float MaxOutput;     //è¾“å‡ºé™å¹…
-  float IntegralLimit; //ç§¯åˆ†é™å¹…
-  float DeadBand;      //æ­»åŒºï¼ˆç»å¯¹å€¼ï¼‰
-  float ControlPeriod; //æ§åˆ¶å‘¨æœŸ
-  float Max_Err;       //æœ€å¤§è¯¯å·®
+/**
+  * @brief          pid calculate 
+  * @param[out]     pid: PID struct data point
+  * @param[in]      ref: feedback data 
+  * @param[in]      set: set point
+  * @retval         pid out
+  */
+/**
+  * @brief          pid¼ÆËã
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @param[in]      ref: ·´À¡Êı¾İ
+  * @param[in]      set: Éè¶¨Öµ
+  * @retval         pidÊä³ö
+  */
+extern fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set);
 
-  uint32_t thistime;
-  uint32_t lasttime;
-  uint8_t dtime;
+/**
+  * @brief          pid out clear
+  * @param[out]     pid: PID struct data point
+  * @retval         none
+  */
+/**
+  * @brief          pid Êä³öÇå³ı
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @retval         none
+  */
+extern void PID_clear(pid_type_def *pid);
 
-  void (*f_param_init)(struct _PID_TypeDef *pid, //PIDå‚æ•°åˆå§‹åŒ–
-                       PID_ID id,
-                       uint16_t maxOutput,
-                       uint16_t integralLimit,
-                       float deadband,
-                       uint16_t controlPeriod,
-                       int16_t max_err,
-                       int16_t target,
-                       float kp,
-                       float ki,
-                       float kd);
-
-  void (*f_pid_reset)(struct _PID_TypeDef *pid, float kp, float ki, float kd); //pidä¸‰ä¸ªå‚æ•°ä¿®æ”¹
-  float (*f_cal_pid)(struct _PID_TypeDef *pid, float measure);                 //pidè®¡ç®—
-} PID_TypeDef;
-
-void pid_init(PID_TypeDef *pid);
-void gypid_init(PID_TypeDef *pid);
-void pid_param_init(
-    PID_TypeDef *pid,
-    PID_ID id,
-    uint16_t maxout,
-    uint16_t intergral_limit,
-    float deadband,
-    uint16_t period,
-    int16_t max_err,
-    int16_t target,
-
-    float kp,
-    float ki,
-    float kd);
-void pid_reset(PID_TypeDef *pid, float kp, float ki, float kd);
-		
-extern PID_TypeDef motor_pid[4];
 #endif
-

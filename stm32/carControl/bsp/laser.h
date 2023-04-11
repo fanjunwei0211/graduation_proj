@@ -65,14 +65,5 @@ extern MBRTUMaterTypeDef MBRTUHandle;
 void LaserDistanceGet(MBRTUMaterTypeDef* psModbus, uint8_t ucSlaveAddress, uint16_t usAddress, uint16_t usNum);
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// MODBUS RTU 主机接收数据回调函数和超时回调函数
-/// 
-/// MBRTUMasterRecvByteISRCallback：放置于串口接收中断中
-/// MBRTUMasterTimerISRCallback：放置于定时器超时中断中
-///
-void MBRTUMasterTimerISRCallback(MBRTUMaterTypeDef* psModbus);
-
 
 #endif

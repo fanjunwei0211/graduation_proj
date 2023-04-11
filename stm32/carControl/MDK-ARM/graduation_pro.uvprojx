@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../bsp</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../bsp;..\Nimotion</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -558,6 +558,16 @@
               <FileName>laser.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\bsp\laser.c</FilePath>
+            </File>
+            <File>
+              <FileName>modbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Nimotion\modbus.c</FilePath>
+            </File>
+            <File>
+              <FileName>nimotion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Nimotion\nimotion.c</FilePath>
             </File>
           </Files>
         </Group>

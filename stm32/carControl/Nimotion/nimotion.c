@@ -21,12 +21,13 @@
 #include "modbus.h"
 #include "stdint.h"
 #include "string.h"
+#include "tim.h"
 int tr;
 int a;
 volatile int timer6_cnt;
 // Modbus 读取数据回复
 volatile int sdo_recv_cnt = 0;
-extern uint16_t RTU_FLAG;
+extern volatile uint16_t RTU_FLAG;
 //接收缓存区 	
 extern uint8_t RS485_RX_BUF[64];  	//接收缓冲,最大64个字节.
 //接收到的数据长度
@@ -155,12 +156,23 @@ uint8_t NiM_Velocity(uint8_t nAddr, uint32_t *pVelocity)
   ********************************************************/
 uint8_t NiM_clearErrorState(uint8_t nAddr)
 {
-	uint8_t error;
-	uint8_t temp;
-	temp = 0x80;
-	error = NiM_writeParam(nAddr,0x06,(uint8_t *)&temp,2);
-	if (error !=0)
-		return error;
+	uint16_t crc16 = 0;//16位CRC校验码
+	uint8_t buffer[8];
+	//组合要发送的报文
+	buffer[0] = nAddr;
+	buffer[1] = 0x06;
+	//判断寄存器的地址
+
+	buffer[2] = 0x00;
+	buffer[3] = 0x51;
+
+	buffer[4] = 0x00;	
+	buffer[5] = 0x80;
+	crc16 = usMBCRC16(buffer, 6);
+	buffer[6] = (uint8_t)(crc16 & 0xff);
+	buffer[7] = (uint8_t)((crc16 >> 8) & 0xff);
+
+	USART3_Send_Buffer(buffer, 8);//发送数据
 	return 0;
 }
 
@@ -198,8 +210,8 @@ uint8_t NiM_readParam(uint8_t nAddr, uint16_t index, uint16_t *data, uint8_t len
 	 buffer[1] = 0x04;
 	 //判断寄存器的地址
 
-			buffer[2] = (index>>8)&0xff;
-			buffer[3] = index&0xff;
+		buffer[2] = (index>>8)&0xff;
+		buffer[3] = index&0xff;
 		buffer[4] = 0x00;
     buffer[5] = len / 2;
 		crc16 = usMBCRC16(buffer, 6);
@@ -313,6 +325,149 @@ uint8_t NiM_readParam(uint8_t nAddr, uint16_t index, uint16_t *data, uint8_t len
  /********************************************************/
 
 
+//uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
+//{
+//	uint32_t i=0;
+//	uint32_t error=0;//错误状态返回值
+//  uint16_t crc16 = 0;//16位CRC校验码
+
+//	//组合要发送的报文
+//	buffer[0] = nAddr;
+
+//	//判断写一个寄存器还是写多个寄存器
+//	buffer[1] = 0x10;
+//	//判断寄存器的地址
+
+//	buffer[2] = (index>>8)&0xff;
+//	buffer[3] = index&0xff;
+
+//	//00 01 02    00 02 04
+//	//判断寄存器数量
+//	buffer[4] = 0x00;	
+//	if(len>2)
+//	{
+//		buffer[5] = 0x02;
+//	}
+//	else
+//	{
+//		buffer[5] = 0x01;
+//	}	
+//	//1个字节位
+//	if(len>2)
+//	{
+//		buffer[6] = 0x04;
+//	}
+//	else
+//	{
+//		buffer[6] = 0x02;
+//	}
+
+//	if(len==4)	
+//	{
+//		//数据信息
+//		
+//		buffer[7] = data[3];
+//		buffer[8] = data[2];
+//		buffer[9] = data[1];
+//		buffer[10]= data[0];
+//		crc16 = usMBCRC16(buffer, 11);
+//		buffer[11] = (uint8_t)(crc16 & 0xff);
+//		buffer[12] = (uint8_t)(crc16 >> 8);
+//		USART3_Send_Buffer(buffer, 13);//发送数据
+//		delay_ms(1);//延时等待发送完成
+//	}
+//	else
+//	{
+//			//数据信息
+//		buffer[7] = data[1];
+//		buffer[8]= data[0];
+//		crc16 = usMBCRC16(buffer, 9);
+//		buffer[9] = (uint8_t)(crc16 & 0xff);
+//		buffer[10] = (uint8_t)(crc16 >> 8);
+//		USART3_Send_Buffer(buffer, 11);//发送数据
+//		delay_ms(1);//延时等待发送完成
+//	}
+
+////	/////////////////////////////////////////////
+//	timer6_cnt = 0;//定时器计数清零
+//	RTU_FLAG=0;//清除接收完成标志位
+//	HAL_TIM_Base_Start_IT(&htim7);
+//	while(timer6_cnt < 500)//2s超时
+//	{
+//		/* BEGIN:   PN:3 */	
+//		if(RTU_FLAG == 1)//收到一帧完整数据
+//		{ 
+//				if(RS485_RX_BUF[0] == nAddr)//判断接收到的数据是不是正确的电机发出的
+//				{
+//						if(RS485_RX_BUF[1] > 0x80)//判断电机是否故障
+//						{
+//								switch(RS485_RX_BUF[2])//如果电机有异常，返回相应的异常状态
+//								{
+//									case 0x01: 
+//										error= ILLEGAL_FUNCTION;
+//									break;
+//									case 0x02:
+//										error= ILLEGAL_DATA_ADDRESS;
+//									break;
+//									case 0x03:
+//										error= ILLEGAL_DATA_VALUE;
+//									break;
+//									case 0x04:
+//										error= SLAVE_DEVICE_FAILURE;
+//									break;
+//									case 0x05:
+//										error = ACKNOWLEDGE;
+//									break;
+//									case 0x06:
+//										error = SLAVE_BUSY;
+//									break;
+//									case 0x0C:
+//									error = MOTOR_ALARM;
+//									break;	
+//									default:
+//									error= SLAVE_DEVICE_FAILURE;
+//									break;
+//								
+//								}
+//								memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
+//								RS485_RX_CNT=0;//接收重新计数
+//								timer6_cnt=0;//定时器计数清零
+//								return error;//返回故障码
+//							/* BEGIN:   PN:3 */	
+//						}
+//						else
+//						{
+//							
+//							if((RS485_RX_BUF[1] == buffer[1])&& (RS485_RX_BUF[3] == buffer[3])  && (RS485_RX_BUF[5] == buffer[5]))//在电机非故障状态下，判断接收到的数据是否有问题
+//							{
+//								
+//								memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
+//								RS485_RX_CNT=0;//接收重新计数
+//								timer6_cnt = 0;//定时器计数清零
+//								break;
+//							}
+
+
+//						}
+//				}
+//			memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
+//			RS485_RX_CNT=0;//接收重新计数
+//			RTU_FLAG=0;//清除接收完成标志位
+//		}
+//	}
+//	memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
+//	if(timer6_cnt >=2000)//判断是否接收超时
+//	{
+//		timer6_cnt=0;//定时器计数清零
+//		return TIMEOUT_ERROR;//返回超时
+//	}
+//	else 
+//	{
+//		timer6_cnt = 0;//定时器计数清零
+//		return RETURN_SUCCESS;//返回成功
+//	}
+//}
+
 uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 {
 	uint32_t i=0;
@@ -362,7 +517,7 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 		buffer[11] = (uint8_t)(crc16 & 0xff);
 		buffer[12] = (uint8_t)(crc16 >> 8);
 		USART3_Send_Buffer(buffer, 13);//发送数据
-		delay_ms(1);//延时等待发送完成
+//		delay_ms(1);//延时等待发送完成
 	}
 	else
 	{
@@ -373,87 +528,16 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 		buffer[9] = (uint8_t)(crc16 & 0xff);
 		buffer[10] = (uint8_t)(crc16 >> 8);
 		USART3_Send_Buffer(buffer, 11);//发送数据
-		delay_ms(1);//延时等待发送完成
+//		delay_ms(1);//延时等待发送完成
 	}
 
 //	/////////////////////////////////////////////
-	timer6_cnt = 0;//定时器计数清零
-	while(timer6_cnt < 500)//2s超时
-	{
-		/* BEGIN:   PN:3 */	
-		if(RTU_FLAG == 1)//收到一帧完整数据
-		{ 
-				if(RS485_RX_BUF[0] == nAddr)//判断接收到的数据是不是正确的电机发出的
-				{
-						if(RS485_RX_BUF[1] > 0x80)//判断电机是否故障
-						{
-								switch(RS485_RX_BUF[2])//如果电机有异常，返回相应的异常状态
-								{
-									case 0x01: 
-										error= ILLEGAL_FUNCTION;
-									break;
-									case 0x02:
-										error= ILLEGAL_DATA_ADDRESS;
-									break;
-									case 0x03:
-										error= ILLEGAL_DATA_VALUE;
-									break;
-									case 0x04:
-										error= SLAVE_DEVICE_FAILURE;
-									break;
-									case 0x05:
-										error = ACKNOWLEDGE;
-									break;
-									case 0x06:
-										error = SLAVE_BUSY;
-									break;
-									case 0x0C:
-									error = MOTOR_ALARM;
-									break;	
-									default:
-									error= SLAVE_DEVICE_FAILURE;
-									break;
-								
-								}
-								memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
-								RS485_RX_CNT=0;//接收重新计数
-								timer6_cnt=0;//定时器计数清零
-								return error;//返回故障码
-							/* BEGIN:   PN:3 */	
-						}
-						else
-						{
-							
-							if((RS485_RX_BUF[1] == buffer[1])&& (RS485_RX_BUF[3] == buffer[3])  && (RS485_RX_BUF[5] == buffer[5]))//在电机非故障状态下，判断接收到的数据是否有问题
-							{
-								
-								memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
-								RS485_RX_CNT=0;//接收重新计数
-								timer6_cnt = 0;//定时器计数清零
-								break;
-							}
-
-
-						}
-				}
-			memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
-			RS485_RX_CNT=0;//接收重新计数
-			RTU_FLAG=0;//清除接收完成标志位
-		}
-	}
-	memset(RS485_RX_BUF, 0, 64);//清除接收缓存区的数据
-	if(timer6_cnt >=2000)//判断是否接收超时
-	{
-		timer6_cnt=0;//定时器计数清零
-		return TIMEOUT_ERROR;//返回超时
-	}
-	else 
-	{
-		timer6_cnt = 0;//定时器计数清零
-		return RETURN_SUCCESS;//返回成功
-	}
-//	return RETURN_SUCCESS;//返回成功
-	}
+	RTU_FLAG=0;//清除接收完成标志位
+	HAL_TIM_Base_Start_IT(&htim7);
+	/* BEGIN:   PN:3 */	
+	while(!RTU_FLAG);
+	return RETURN_SUCCESS;//返回成功
+}
 
 /********************************************************
   * @brief      : NiM_isTargetReached
@@ -471,9 +555,9 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 
 uint8_t NiM_isTargetReached(uint8_t nAddr)
 {
-		uint32_t pStatusWord;
-		uint8_t error;
-		error = NiM_readParam(nAddr,0x381,(uint16_t *)&pStatusWord,2);
+	uint32_t pStatusWord;
+	uint8_t error;
+	error = NiM_readParam(nAddr,0x381,(uint16_t *)&pStatusWord,2);
 	tr = pStatusWord ;
 	if (error!=0)
 	{return error;}
@@ -757,18 +841,22 @@ uint8_t NiM_moveAbsolute(uint8_t nAddr, uint8_t nType,int32_t nPosition)
 uint8_t NiM_moveVelocity(uint8_t nAddr, int32_t nVelocity)
 {
 	uint8_t error;
-
-	//error = NiM_writeParam(nAddr,0x60FF,0x00,(uint8_t *)(&nVelocity),4);
+	static char isPower=0;
 	uint16_t temp=0;
 	int32_t tVelocity = nVelocity;
-//	static char isOn=0;
-//	if(nVelocity==0)
-//	{
-//		
+//	if(isPower==0){
+//		isPower=1;
+//		temp = 0x06;
+//		//601 2B 40 60 00 06 00 00 00  使电机准备
+//		NiM_writeParam(nAddr,0x51,(uint8_t *)&temp,2);
+//		temp = 0x07;
+//		//601 2B 40 60 00 07 00 00 00 使电机失能
+//		NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
+//		temp = 0x0F;
+//		//601 2B 40 60 00 0F 00 00 00 使电机使能
+//		NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
 //	}
-//	else{
-//		
-//	}
+		
 	if(nVelocity>0)
 	{
 		temp=0x01;//1->正方向
@@ -779,7 +867,7 @@ uint8_t NiM_moveVelocity(uint8_t nAddr, int32_t nVelocity)
 			error = NiM_writeParam(nAddr,0x55,(uint8_t *)(&nVelocity),4);
 		}
 	}
-	else
+	else if(nVelocity<0)
 	{
 		temp=0x00;//0->反方向
 		error = NiM_writeParam(nAddr,0x52,(uint8_t *)(&temp),2);
@@ -790,9 +878,6 @@ uint8_t NiM_moveVelocity(uint8_t nAddr, int32_t nVelocity)
 			error = NiM_writeParam(nAddr,0x55,(uint8_t *)(&tVelocity),4);
 		}
 	}
-
-	if (error !=0)
-		return error;
 	return 0;
 }
 
@@ -871,23 +956,44 @@ uint8_t NiM_goHome(uint8_t nAddr, int8_t nType)
   * @note       : 数据类型：Modbus
   *
   ********************************************************/
+//uint8_t NiM_powerOn(uint8_t nAddr)
+//{
+//	uint16_t temp=0;
+//	uint8_t error;
+//	temp = 0x06;
+//	//601 2B 40 60 00 06 00 00 00  使电机准备
+//	error = NiM_writeParam(nAddr,0x51,(uint8_t *)&temp,2);
+//	if (error !=0)
+//		return error;
+//	temp = 0x07;
+////	delay_ms(2);
+//	//601 2B 40 60 00 07 00 00 00 使电机失能
+//	error = NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
+//	if (error !=0)
+//		return error;
+////	delay_ms(2);
+//	temp = 0x0F;
+//	//601 2B 40 60 00 0F 00 00 00 使电机使能
+//	error = NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
+//	if (error !=0)
+//		return error;
+//	return 0;
+//}
 uint8_t NiM_powerOn(uint8_t nAddr)
 {
 	uint16_t temp=0;
 	uint8_t error;
-	temp = 6;
+	temp = 0x06;
 	//601 2B 40 60 00 06 00 00 00  使电机准备
 	error = NiM_writeParam(nAddr,0x51,(uint8_t *)&temp,2);
 	if (error !=0)
 		return error;
-	temp = 7;
-	delay_ms(1);
+	temp = 0x07;
 	//601 2B 40 60 00 07 00 00 00 使电机失能
 	error = NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
 	if (error !=0)
 		return error;
-	delay_ms(1);
-	temp = 15;
+	temp = 0x0F;
 	//601 2B 40 60 00 0F 00 00 00 使电机使能
 	error = NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
 	if (error !=0)
@@ -911,7 +1017,7 @@ uint8_t NiM_powerOn(uint8_t nAddr)
   ********************************************************/
 uint8_t NiM_powerOff(uint8_t nAddr)
 {
-	uint8_t temp=6;
+	uint16_t temp=6;
 	uint8_t error;
 	error = NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
 	if (error !=0)

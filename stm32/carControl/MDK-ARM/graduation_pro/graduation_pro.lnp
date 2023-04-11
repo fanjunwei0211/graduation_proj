@@ -30,6 +30,8 @@
 "graduation_pro\led.o"
 "graduation_pro\key.o"
 "graduation_pro\laser.o"
+"graduation_pro\modbus.o"
+"graduation_pro\nimotion.o"
 --strict --scatter "graduation_pro\graduation_pro.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

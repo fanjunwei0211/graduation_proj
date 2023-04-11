@@ -34,6 +34,8 @@ graduation_pro/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   ..\bsp\control.h \
   D:\software\keil5\ARM\ARMCLANG\Bin\..\include\string.h ..\bsp\JY901.h \
-  ..\bsp\led.h ..\bsp\key.h ..\bsp\pid.h ..\bsp\delay.h ..\bsp\sys.h \
-  ..\bsp\laser.h D:\software\keil5\ARM\ARMCLANG\Bin\..\include\stdlib.h \
-  D:\software\keil5\ARM\ARMCLANG\Bin\..\include\stdio.h
+  ..\Nimotion\nimotion.h ..\bsp\laser.h \
+  D:\software\keil5\ARM\ARMCLANG\Bin\..\include\stdlib.h \
+  D:\software\keil5\ARM\ARMCLANG\Bin\..\include\stdio.h ..\bsp\pid.h \
+  ..\bsp\sys.h ..\bsp\led.h ..\bsp\key.h ..\bsp\delay.h \
+  ..\Nimotion\modbus.h

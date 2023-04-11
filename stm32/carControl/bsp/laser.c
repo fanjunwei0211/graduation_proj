@@ -196,7 +196,19 @@ void laserOpenClose(uint8_t address, int mode){
 void LaserDistanceGet(MBRTUMaterTypeDef* psModbus, uint8_t ucSlaveAddress, uint16_t usAddress, uint16_t usNum)
 {
 	
-	MBRTUMasterRead(psModbus, ucSlaveAddress, 0X03, usAddress, usNum);
+//	MBRTUMasterRead(psModbus, ucSlaveAddress, 0X03, usAddress, usNum);
+	uint16_t crc;
+	uint8_t ucBuf[8];
+	ucBuf[0] = ucSlaveAddress;
+	ucBuf[1] = 0x03;
+	ucBuf[2] = ((usAddress & 0XFF00) >> 8);;
+	ucBuf[3] = (usAddress & 0XFF);
+	ucBuf[4] = ((usNum & 0XFF00) >> 8);
+	ucBuf[5] = usNum&0xFF;
+	crc = usMBCRC16( ( uint8_t * )ucBuf, 6);
+	ucBuf[6] = ( uint8_t )( crc & 0xFF );
+	ucBuf[7] = ( uint8_t )( crc >> 8 );
+	HAL_UART_Transmit(&huart2, (uint8_t *)ucBuf, 8, 100);
 }
 
 void LaserSerial2Data(unsigned char ucData)
@@ -223,15 +235,4 @@ void LaserSerial2Data(unsigned char ucData)
 //		MBRTUHandle.timerStart();
 		ucRxCnt=0;//Çå¿Õ»º´æÇø
 	}
-}
-
-
-
-void MBRTUMasterTimerISRCallback(MBRTUMaterTypeDef* psModbus)
-{
-    psModbus->timerStop();
-    if(psModbus->usStatus != 0)
-    {
-        psModbus->usStatus |= 0X8000;
-    }
 }

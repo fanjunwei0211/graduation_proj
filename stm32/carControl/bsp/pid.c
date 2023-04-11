@@ -1,132 +1,142 @@
 /**
-  ******************************************************************************
-  * @file    pid.c
-  * @author  Ginger
-  * @version V1.0.0
-  * @date    2015/11/14
-  * @brief   å¯¹æ¯ä¸€ä¸ªpidç»“æ„ä½“éƒ½è¦å…ˆè¿›è¡Œå‡½æ•°çš„è¿æ¥ï¼Œå†è¿›è¡Œåˆå§‹åŒ–
-  ******************************************************************************
-  * @attention åº”è¯¥æ˜¯ç”¨äºŒé˜¶å·®åˆ†(d)äº‘å°ä¼šæ›´åŠ ç¨³å®š
+  ****************************(C) COPYRIGHT 2019 DJI****************************
+  * @file       pid.c/h
+  * @brief      pidÊµÏÖº¯Êı£¬°üÀ¨³õÊ¼»¯£¬PID¼ÆËãº¯Êı£¬
+  * @note       
+  * @history
+  *  Version    Date            Author          Modification
+  *  V1.0.0     Dec-26-2018     RM              1. Íê³É
   *
-  ******************************************************************************
+  @verbatim
+  ==============================================================================
+
+  ==============================================================================
+  @endverbatim
+  ****************************(C) COPYRIGHT 2019 DJI****************************
   */
 
-/* Includes ------------------------------------------------------------------*/
 #include "pid.h"
-#include "stm32f4xx.h"
+#include "main.h"
 
-extern int isMove;
+#define LimitMax(input, max)   \
+    {                          \
+        if (input > max)       \
+        {                      \
+            input = max;       \
+        }                      \
+        else if (input < -max) \
+        {                      \
+            input = -max;      \
+        }                      \
+    }
 
-/*å‚æ•°åˆå§‹åŒ–--------------------------------------------------------------*/
-void pid_param_init(
-    PID_TypeDef *pid,
-    PID_ID id,
-    uint16_t maxout,
-    uint16_t intergral_limit,
-    float deadband,
-    uint16_t period,
-    int16_t max_err,
-    int16_t target,
-
-    float kp,
-    float ki,
-    float kd)
+/**
+  * @brief          pid struct data init
+  * @param[out]     pid: PID struct data point
+  * @param[in]      mode: PID_POSITION: normal pid
+  *                 PID_DELTA: delta pid
+  * @param[in]      PID: 0: kp, 1: ki, 2:kd
+  * @param[in]      max_out: pid max out
+  * @param[in]      max_iout: pid max iout
+  * @retval         none
+  */
+/**
+  * @brief          pid struct data init
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @param[in]      mode: PID_POSITION:ÆÕÍ¨PID
+  *                 PID_DELTA: ²î·ÖPID
+  * @param[in]      PID: 0: kp, 1: ki, 2:kd
+  * @param[in]      max_out: pid×î´óÊä³ö
+  * @param[in]      max_iout: pid×î´ó»ı·ÖÊä³ö
+  * @retval         none
+  */
+void PID_init(pid_type_def *pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout)
 {
-  pid->id = id;
-
-  pid->ControlPeriod = period; //æ²¡ç”¨åˆ°
-  pid->DeadBand = deadband;
-  pid->IntegralLimit = intergral_limit;
-  pid->MaxOutput = maxout;
-  pid->Max_Err = max_err;
-  pid->target = target;
-
-  pid->kp = kp;
-  pid->ki = ki;
-  pid->kd = kd;
-
-  pid->output = 0;
+    if (pid == NULL || PID == NULL)
+    {
+        return;
+    }
+    pid->mode = mode;
+    pid->Kp = PID[0];
+    pid->Ki = PID[1];
+    pid->Kd = PID[2];
+    pid->max_out = max_out;
+    pid->max_iout = max_iout;
+    pid->Dbuf[0] = pid->Dbuf[1] = pid->Dbuf[2] = 0.0f;
+    pid->error[0] = pid->error[1] = pid->error[2] = pid->Pout = pid->Iout = pid->Dout = pid->out = 0.0f;
 }
 
-/*ä¸­é€”æ›´æ”¹å‚æ•°è®¾å®š--------------------------------------------------------------*/
-void pid_reset(PID_TypeDef *pid, float kp, float ki, float kd)
+/**
+  * @brief          pid calculate 
+  * @param[out]     pid: PID struct data point
+  * @param[in]      ref: feedback data 
+  * @param[in]      set: set point
+  * @retval         pid out
+  */
+/**
+  * @brief          pid¼ÆËã
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @param[in]      ref: ·´À¡Êı¾İ
+  * @param[in]      set: Éè¶¨Öµ
+  * @retval         pidÊä³ö
+  */
+fp32 PID_calc(pid_type_def *pid, fp32 ref, fp32 set)
 {
-  pid->kp = kp;
-  pid->ki = ki;
-  pid->kd = kd;
+    if (pid == NULL)
+    {
+        return 0.0f;
+    }
+
+    pid->error[2] = pid->error[1];
+    pid->error[1] = pid->error[0];
+    pid->set = set;
+    pid->fdb = ref;
+    pid->error[0] = set - ref;
+    if (pid->mode == PID_POSITION)
+    {
+        pid->Pout = pid->Kp * pid->error[0];
+        pid->Iout += pid->Ki * pid->error[0];
+        pid->Dbuf[2] = pid->Dbuf[1];
+        pid->Dbuf[1] = pid->Dbuf[0];
+        pid->Dbuf[0] = (pid->error[0] - pid->error[1]);
+        pid->Dout = pid->Kd * pid->Dbuf[0];
+        LimitMax(pid->Iout, pid->max_iout);
+        pid->out = pid->Pout + pid->Iout + pid->Dout;
+        LimitMax(pid->out, pid->max_out);
+    }
+    else if (pid->mode == PID_DELTA)
+    {
+        pid->Pout = pid->Kp * (pid->error[0] - pid->error[1]);
+        pid->Iout = pid->Ki * pid->error[0];
+        pid->Dbuf[2] = pid->Dbuf[1];
+        pid->Dbuf[1] = pid->Dbuf[0];
+        pid->Dbuf[0] = (pid->error[0] - 2.0f * pid->error[1] + pid->error[2]);
+        pid->Dout = pid->Kd * pid->Dbuf[0];
+        pid->out += pid->Pout + pid->Iout + pid->Dout;
+        LimitMax(pid->out, pid->max_out);
+    }
+    return pid->out;
 }
 
-/*pidè®¡ç®—-----------------------------------------------------------------------*/
-
-static float pid_calculate(PID_TypeDef *pid, float measure) //, int16_t target)
+/**
+  * @brief          pid out clear
+  * @param[out]     pid: PID struct data point
+  * @retval         none
+  */
+/**
+  * @brief          pid Êä³öÇå³ı
+  * @param[out]     pid: PID½á¹¹Êı¾İÖ¸Õë
+  * @retval         none
+  */
+void PID_clear(pid_type_def *pid)
 {
-  //	uint32_t time,lasttime;
-
-  pid->lasttime = pid->thistime;
-  pid->thistime = HAL_GetTick();
-  pid->dtime = pid->thistime - pid->lasttime;
-  pid->measure = measure;
-  //	pid->target = target;
-  pid->previous_err = pid->last_err;
-  pid->last_err = pid->err;
-  pid->last_output = pid->output;
-
-  pid->err = pid->target - pid->measure;
-
-  //æ˜¯å¦è¿›å…¥æ­»åŒº
-  if ((ABS(pid->err) > pid->DeadBand))
-  {
-    if (pid->id == PID_Position)
+    if (pid == NULL)
     {
-      pid->pout = pid->kp * pid->err;
-			if(ABS(pid->pout) > 1000)
-				pid->iout += (pid->ki * pid->err);
-
-      //			pid->iout -= (pid->ki * pid->ierr[index]);
-      //			pid->ierr[index] = pid->err;
-      //
-      //			index++;
-      //			if(index > 99)
-      //			index = 0;
-
-      pid->dout = pid->kd * (pid->err - pid->last_err);
-
-      //ç§¯åˆ†æ˜¯å¦è¶…å‡ºé™åˆ¶
-      if (pid->iout > pid->IntegralLimit)
-        pid->iout = pid->IntegralLimit;
-      if (pid->iout < -pid->IntegralLimit)
-        pid->iout = -pid->IntegralLimit;
-      pid->output = pid->pout + pid->iout + pid->dout;
-      //pid->output = pid->output*0.7f + pid->last_output*0.3f;  //æ»¤æ³¢ï¼Ÿ
+        return;
     }
-    else if (pid->id == PID_Speed)
-    {
-      pid->pout = pid->kp * (pid->err - pid->last_err);
-      pid->iout = pid->ki * pid->err;
-      pid->dout = pid->kd * (pid->err - 2 * pid->last_err + pid->previous_err);
-      pid->output += pid->pout + pid->iout + pid->dout;
-    }
-    if (pid->output > pid->MaxOutput)
-    {
-      pid->output = pid->MaxOutput;
-    }
-    if (pid->output < -pid->MaxOutput)
-    {
-      pid->output = -pid->MaxOutput;
-    }
-  }
-	else
-	{
-		pid->iout = 0;
-	}
 
-  return pid->output;
-}
-
-/*pidç»“æ„ä½“åˆå§‹åŒ–ï¼Œæ¯ä¸€ä¸ªpidå‚æ•°éœ€è¦è°ƒç”¨ä¸€æ¬¡-----------------------------------------------------*/
-void pid_init(PID_TypeDef *pid)
-{
-  pid->f_param_init = pid_param_init;
-  pid->f_pid_reset = pid_reset;
-  pid->f_cal_pid = pid_calculate;
+    pid->error[0] = pid->error[1] = pid->error[2] = 0.0f;
+    pid->Dbuf[0] = pid->Dbuf[1] = pid->Dbuf[2] = 0.0f;
+    pid->out = pid->Pout = pid->Iout = pid->Dout = 0.0f;
+    pid->fdb = pid->set = 0.0f;
 }

@@ -106,8 +106,10 @@ int main(void)
 	int32_t tagvelocity = 0;
 	uint8_t nAddr = 0x03;
 	NiM_clearErrorState(nAddr);            //¹ÊÕÏ×´Ì¬Çå³ý
+	NiM_clearErrorState(nAddr+1);
 	delay_ms(10);
 	NiM_powerOff(nAddr);   
+	NiM_powerOff(nAddr+1); 
 	delay_ms(10);
 
 	

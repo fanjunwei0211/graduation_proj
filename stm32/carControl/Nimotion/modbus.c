@@ -29,7 +29,7 @@ uint8_t RS485_RX_BUF[64]={0};  	//接收缓冲,最大64个字节.
 //接收到的数据长度
 uint8_t RS485_RX_CNT=0;   	
 //接收完整数据标志
-uint16_t RTU_FLAG=0;  
+volatile uint16_t RTU_FLAG=0;  
 //CRC校验表
 static const uint8_t aucCRCHi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,

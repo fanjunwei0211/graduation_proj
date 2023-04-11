@@ -29,7 +29,7 @@ extern uint8_t RS485_RX_BUF[64];
 //接收到的数据长度
 extern uint8_t RS485_RX_CNT;   	
 //接收完整数据标志
-extern uint16_t RTU_FLAG;  
+extern volatile uint16_t RTU_FLAG;  
 
 
 void USART3_Send_Buffer(uint8_t *buf,uint8_t size);

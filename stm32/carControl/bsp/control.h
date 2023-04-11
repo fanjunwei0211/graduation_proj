@@ -6,8 +6,17 @@
 #include "gpio.h"
 #include "usart.h"
 #include "JY901.h"
+#include "nimotion.h"
+#include "laser.h"
+#include "pid.h"
 
 extern float yaw;
-extern void HWT_init();
+extern char isStraight;
+extern pid_type_def angControl_pid;
+
+
+void HWT_init();
+void SpeedSet(int left, int right);
+float AngleCorrect(float ang);
  
 #endif
