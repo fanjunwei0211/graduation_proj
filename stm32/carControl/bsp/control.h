@@ -10,10 +10,10 @@
 #include "laser.h"
 #include "pid.h"
 
-extern float yaw;
+extern float yaw,target_yaw,init_yaw;
 extern char isStraight;
 extern pid_type_def angControl_pid;
-extern volatile int speedLeft,speedRight;
+extern volatile int speedLeft,speedRight,speedW;
 
 
 void HWT_init();

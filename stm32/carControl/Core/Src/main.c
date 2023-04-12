@@ -55,6 +55,7 @@
 /* USER CODE BEGIN PV */
 uint8_t g_Uart2RxByte;
 uint8_t uart3_res;
+float angt;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,56 +106,73 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE); //使能电机IDLE中断
+	HAL_UARTEx_ReceiveToIdle_IT(&huart3,RS485_RX_BUF,64);
+//	__HAL_UART_CLEAR_IDLEFLAG(&huart3);//清除标志位
 	HWT_init();
 	__HAL_TIM_CLEAR_FLAG(&htim14, TIM_FLAG_UPDATE);
 	HAL_TIM_Base_Start_IT(&htim14);
+	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);
-	HAL_UART_Receive_IT(&huart3,&uart3_res,1);
+//	HAL_UART_Receive_IT(&huart3,&uart3_res,1);
+	delay_ms(500);
+	init_yaw = (float)stcAngle.Angle[2]/32768*180;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */ 
-//	delay_ms(500);
-//	NiM_changeWorkMode(1,VELOCITY_MODE);
-//	NiM_changeWorkMode(2,VELOCITY_MODE);
-//	NiM_changeWorkMode(3,VELOCITY_MODE);
-//	NiM_changeWorkMode(4,VELOCITY_MODE);
-//	NiM_powerOn(1);
-//	NiM_powerOn(2);
-//	NiM_powerOn(3);
-//	NiM_powerOn(4);
-//	isStraight = 0;
-//	SpeedSet(200,200);
-//	delay_ms(2000);
-//	isStraight = 0;
-//	SpeedSet(-200,-200);
-//	delay_ms(2000);
-//	isStraight = 1;
-//	SpeedSet(200,200);
-////	NiM_moveVelocity(1,200);
-////	NiM_moveVelocity(2,-200);
-//	delay_ms(2000);
-//	isStraight = 1;
-//	SpeedSet(-200,-200);
-////	NiM_moveVelocity(1,-200);
-////	NiM_moveVelocity(2,200);
-//	delay_ms(2000);
+	
+	NiM_changeWorkMode(1,VELOCITY_MODE);
+	delay_ms(1);
+	NiM_changeWorkMode(2,VELOCITY_MODE);
+	delay_ms(1);
+	NiM_changeWorkMode(3,VELOCITY_MODE);
+	delay_ms(1);
+	NiM_changeWorkMode(4,VELOCITY_MODE);
+	delay_ms(1);
 	NiM_powerOff(1);
 	NiM_powerOff(2);
 	NiM_powerOff(3);
 	NiM_powerOff(4);
-	DirectionSet(0);
-	delay_ms(3000);
+	target_yaw=0;
+	while(KeyState(0)==0);
+	DirectionSet(1);//横向
+	delay_ms(500);
+	
+//	speedLeft=400;speedRight=400;
+//	delay_ms(2000);
+//	speedLeft=-400;speedRight=-400;
+//	delay_ms(2000);
+//	speedLeft=400;speedRight=-400;
+//	delay_ms(2000);
+//	speedLeft=-400;speedRight=400;
+//	delay_ms(2000);
+//	speedLeft=0;speedRight=0;
+	
+	SpeedSet(400,400);
+	delay_ms(2000);
+	SpeedSet(-400,-400);
+	delay_ms(2000);
+//	SpeedSet(-400,400);
+//	delay_ms(2000);
+//	SpeedSet(400,-400);
+//	delay_ms(2000);
+//	SpeedSet(0,0);
+//	isStraight = 1;
+//	SpeedSet(200,200);
+//	delay_ms(2000);
+//	isStraight = 1;
+//	SpeedSet(-200,-200);
+//	delay_ms(2000);
+//	NiM_powerOff(1);
+//	NiM_powerOff(2);
+//	NiM_powerOff(3);
+//	NiM_powerOff(4);
 	DirectionSet(1);
 	delay_ms(3000);
-	DirectionSet(0);
 	while (1)
   {
-//		LaserDistanceGet(&MBRTUHandle,0x06,0x0001,1);
-//		
-//		LaserDistanceGet(&MBRTUHandle,0x05,0x0001,1);
-//		LaserDistanceGet(&MBRTUHandle,0x04,0x0001,1);
 
     /* USER CODE END WHILE */
 
@@ -164,8 +182,7 @@ int main(void)
   /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
+/**qock Configuration
   * @retval None
   */
 void SystemClock_Config(void)
@@ -218,7 +235,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		CopeSerial2Data(TxBuffer_T);//陀螺仪数据解算
 		HAL_UART_Receive_IT(&huart1,&TxBuffer_T,1);	
-		yaw=(float)stcAngle.Angle[2]/32768*180;
+		
 	}
 	//激光测距仪串口数据接收中断
 	if(huart->Instance == huart2.Instance)
@@ -226,24 +243,39 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);  // 激光测距仪数据解算
 		LaserSerial2Data(g_Uart2RxByte);
 	}
-	//电机串口数据接收中断
-	if(huart->Instance == huart3.Instance)
-	{
-		HAL_UART_Receive_IT(&huart3,&uart3_res,1); 	//读取接收到的数据
-		if(RS485_RX_CNT<64)
-		{
-			RS485_RX_BUF[RS485_RX_CNT]=uart3_res;		//记录接收到的值
-			RS485_RX_CNT++;						//接收数据增加1 
-			__HAL_TIM_SET_COUNTER(&htim7,0);
-			HAL_TIM_Base_Start_IT(&htim7);
-		} 
-		else RS485_RX_CNT=0;
+//	//电机串口数据接收中断
+//	if(huart->Instance == huart3.Instance)
+//	{
+//		HAL_UART_Receive_IT(&huart3,&uart3_res,1); 	//读取接收到的数据
+//		if(RS485_RX_CNT<64)
+//		{
+//			RS485_RX_BUF[RS485_RX_CNT]=uart3_res;		//记录接收到的值
+//			RS485_RX_CNT++;						//接收数据增加1 
+//			__HAL_TIM_SET_COUNTER(&htim7,0);
+//			HAL_TIM_Base_Start_IT(&htim7);
+//		} 
+//		else RS485_RX_CNT=0;
+//		
+//	}
+}
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	if(huart->Instance == huart3.Instance){
+		
+		//串口空闲中断
+		HAL_UARTEx_ReceiveToIdle_IT(&huart3,RS485_RX_BUF,64);
+		__HAL_TIM_SET_COUNTER(&htim7,0);
+		HAL_TIM_Base_Start_IT(&htim7);
+//		RTU_FLAG=1;
 		
 	}
+	
 }
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	static uint8_t num=4;
+	static int delay6=0;
 	static int delay14=0;
 	//5ms定时激光测距仪T3.5时间用
 	if(htim->Instance == htim14.Instance)
@@ -258,7 +290,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			delay14 = 0;
 		}
 	}
-	//2ms提供电机返回数据接收完毕信号
+	//1ms定时
+	if(htim == &htim6)
+	{
+		delay6++;
+		if(delay6 >40)//delay6*1ms定时
+		{
+			yaw=(float)stcAngle.Angle[2]/32768*180;
+			if(yaw > angControl_pid.set - 0.1f && yaw < angControl_pid.set + 0.1f)    //当落在这个范围时，不再计算pid
+			{
+				speedW = 0;
+			}
+			else
+			{
+				angt = AngleCorrect(target_yaw+init_yaw);
+				speedW = PID_calc(&angControl_pid,yaw,angt);
+			}
+			
+//			SpeedSet(speedLeft,speedRight);
+//			SpeedSet(-speedW,speedW);
+			delay6 = 0;
+		}
+		
+	}
+	//3ms提供电机返回数据接收完毕信号
 	if(htim->Instance == htim7.Instance)
 	{
 		RTU_FLAG=1;

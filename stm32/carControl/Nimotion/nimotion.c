@@ -473,6 +473,7 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 	uint32_t i=0;
 	uint32_t error=0;//错误状态返回值
   uint16_t crc16 = 0;//16位CRC校验码
+	RTU_FLAG=0;//清除接收完成标志位
 
 	//组合要发送的报文
 	buffer[0] = nAddr;
@@ -532,9 +533,9 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 	}
 
 //	/////////////////////////////////////////////
-	RTU_FLAG=0;//清除接收完成标志位
-	HAL_TIM_Base_Start_IT(&htim7);
+
 	/* BEGIN:   PN:3 */	
+//	delay_ms(5);
 	while(!RTU_FLAG);
 	return RETURN_SUCCESS;//返回成功
 }
@@ -857,7 +858,7 @@ uint8_t NiM_moveVelocity(uint8_t nAddr, int32_t nVelocity)
 //		NiM_writeParam(nAddr,0x51,(uint8_t *)(&temp),2);
 //	}
 		
-	if(nVelocity>0)
+	if(nVelocity>=0)
 	{
 		temp=0x01;//1->正方向
 		error = NiM_writeParam(nAddr,0x52,(uint8_t *)(&temp),2);

@@ -102,6 +102,7 @@ static const uint8_t aucCRCLo[] = {
 void USART3_Send_Buffer(uint8_t *buf,uint8_t size)
 {
 	HAL_UART_Transmit(&huart3,buf,size,100);
+//	HAL_UART_Transmit_IT(&huart3,buf,size);
 	RS485_RX_CNT=0;
 }
 
