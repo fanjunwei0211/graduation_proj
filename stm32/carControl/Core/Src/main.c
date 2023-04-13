@@ -282,7 +282,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		Led_Flash(100);
 		delay14++;
-		if(delay14 >5)//delay14*5ms定时
+		if(delay14 >6)//delay14*5ms定时
 		{
 			LaserDistanceGet(&MBRTUHandle,num,0x0001,1);
 			num++;
