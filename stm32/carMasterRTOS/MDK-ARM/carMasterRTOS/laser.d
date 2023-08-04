@@ -36,3 +36,17 @@ carmasterrtos\laser.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\string.h
 carmasterrtos\laser.o: ../Core/Inc/usart.h
 carmasterrtos\laser.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 carmasterrtos\laser.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdio.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+carmasterrtos\laser.o: ../Core/Inc/FreeRTOSConfig.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
+carmasterrtos\laser.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h

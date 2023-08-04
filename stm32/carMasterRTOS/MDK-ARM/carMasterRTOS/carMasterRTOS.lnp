@@ -4,6 +4,7 @@
 "carmasterrtos\gpio.o"
 "carmasterrtos\freertos.o"
 "carmasterrtos\dma.o"
+"carmasterrtos\tim.o"
 "carmasterrtos\usart.o"
 "carmasterrtos\stm32f4xx_it.o"
 "carmasterrtos\stm32f4xx_hal_msp.o"
@@ -43,8 +44,10 @@
 "carmasterrtos\motor_task.o"
 "carmasterrtos\laser_task.o"
 "carmasterrtos\imu_task.o"
+"carmasterrtos\control_task.o"
 "carmasterrtos\modbus.o"
-"carmasterrtos\nimotion.o"
+"carmasterrtos\nimotionmotorsdk.o"
+"carmasterrtos\nimotiontest.o"
 --strict --scatter "carMasterRTOS\carMasterRTOS.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

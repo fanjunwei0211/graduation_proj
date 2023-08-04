@@ -20,6 +20,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -27,6 +28,11 @@
 /* USER CODE BEGIN Includes */
 #include "key.h"
 #include "laser.h"
+#include "motor_task.h"
+#include "NiMotionMotorSDK.h"
+#include "NiMotionTest.h"
+#include "modbus.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +52,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern osSemaphoreId LaserRecHandle;
+extern osSemaphoreId MotorBusHandle;
+uint8_t uart3_res;	
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,18 +66,54 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t g_Uart2RxByte;
+//uint8_t g_Uart2RxByte;
 
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//	
-//	//陀螺仪串口数据接收中断
-//	if(huart->Instance == huart2.Instance)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart3)
+	{	   		
+		
+		if(RS485_RX_CNT<64)
+		{
+			RS485_RX_BUF[RS485_RX_CNT]=uart3_res;		//记录接收到的值
+			RS485_RX_CNT++;						//接收数据增加1 
+			__HAL_TIM_SetCounter(&htim13,0);
+			HAL_TIM_Base_Start_IT(&htim13);
+		} 
+		HAL_UART_Receive_IT(&huart3,&uart3_res,1);
+	}
+}
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	if(huart->Instance == huart2.Instance)
+	{
+		LaserSerial2DataL(LaserRxBuffer1);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart2,LaserRxBuffer1,LaserDataLen);
+	}
+	
+//	if(huart->Instance == huart3.Instance)
 //	{
-//		HAL_UART_Receive_IT(&huart2, &g_Uart2RxByte, 1);  // 激光测距仪数据解算
-//		LaserSerial2Data(g_Uart2RxByte);
+//		
+//		xSemaphoreGiveFromISR(MotorBusHandle,NULL);
+//		HAL_UARTEx_ReceiveToIdle_DMA(&huart3,MotorRxBuffer,MotorBufLen);
 //	}
-//}
+	
+	
+	
+	if(huart->Instance == huart4.Instance)
+	{
+		LaserSerial2DataL(LaserRxBuffer2);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart4,LaserRxBuffer2,LaserDataLen);
+	}
+	
+	if(huart->Instance == huart5.Instance)
+	{
+		LaserSerial2DataL(LaserRxBuffer3);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart5,LaserRxBuffer3,LaserDataLen);
+	}
+	
+}
+	
 /* USER CODE END 0 */
 
 /**
@@ -104,8 +148,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_UART5_Init();
+  MX_UART4_Init();
+  MX_TIM13_Init();
+  MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
-//	while(KeyState(0) == 0){};
+	HAL_UART_Receive_IT(&huart3,&uart3_res,1);
+	HAL_TIM_Base_Start_IT(&htim14);
+	HAL_TIM_Base_Start_IT(&htim13);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -192,7 +242,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
+	if(htim->Instance == htim14.Instance)
+	{
+		static int TimeCnt = 0;
+		Led_Flash(500);
+		Timer++;//1MS中断
+		TimeCnt++;
+		if(TimeCnt>50)//500ms
+		{
+			CntFlag=1;
 
+			if(*CurrentPostion==*TAGPostion)
+			{
+				ActionFlag=0;
+			}
+			TimeCnt=0;
+		}
+	}
+	
+	if (htim == &htim13)
+	{
+		RTU_FLAG = 1;
+//		HAL_TIM_Base_Stop_IT(&htim13);
+	}
   /* USER CODE END Callback 1 */
 }
 

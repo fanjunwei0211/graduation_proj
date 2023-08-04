@@ -21,8 +21,9 @@
 #include "modbus.h"
 #include "stdint.h"
 #include "string.h"
-//#include "tim.h"
 #include "cmsis_os.h"
+
+extern osSemaphoreId MotorBusHandle;
 
 int tr;
 int a;
@@ -471,6 +472,8 @@ uint8_t NiM_readParam(uint8_t nAddr, uint16_t index, uint16_t *data, uint8_t len
 
 uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 {
+	int delay;
+	int timeout = 50;
 	uint32_t i=0;
 	uint32_t error=0;//错误状态返回值
   uint16_t crc16 = 0;//16位CRC校验码
@@ -538,7 +541,18 @@ uint8_t NiM_writeParam(uint8_t nAddr,uint16_t index,uint8_t *data, uint8_t len)
 	/* BEGIN:   PN:3 */	
 //	delay_ms(5);
 //	while(!RTU_FLAG);
-	osDelay(10);
+	osDelay(20);
+//	while(timeout != 0)
+//	{
+//		uint8_t status =  xSemaphoreTake(MotorBusHandle,0); 
+//		if(status == pdTRUE)
+//		{
+//				break;
+//		}
+//		delay = timeout > 5 ? 5 : timeout;
+//		timeout -= delay;
+//		osDelay(delay);
+//	}
 	return RETURN_SUCCESS;//返回成功
 }
 

@@ -46,6 +46,7 @@ carmasterrtos\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 carmasterrtos\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 carmasterrtos\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 carmasterrtos\main.o: ../Core/Inc/dma.h
+carmasterrtos\main.o: ../Core/Inc/tim.h
 carmasterrtos\main.o: ../Core/Inc/usart.h
 carmasterrtos\main.o: ../Core/Inc/gpio.h
 carmasterrtos\main.o: ../bsp/key.h
@@ -53,3 +54,8 @@ carmasterrtos\main.o: ../bsp/laser.h
 carmasterrtos\main.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\string.h
 carmasterrtos\main.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 carmasterrtos\main.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdio.h
+carmasterrtos\main.o: ../Task/motor_task.h
+carmasterrtos\main.o: ../Nimotion/NiMotionMotorSDK.h
+carmasterrtos\main.o: ../Nimotion/NiMotionTest.h
+carmasterrtos\main.o: ../Nimotion/modbus.h
+carmasterrtos\main.o: ../bsp/led.h

@@ -8,8 +8,9 @@
 #include <stdio.h>
 
 extern uint16_t laserDis[3];
-extern volatile char laser_RtuFlag;
-extern unsigned char LaserRxBuffer[];
+extern unsigned char LaserRxBuffer1[],LaserRxBuffer2[],LaserRxBuffer3[];
+extern char UART2_RX_LEN;
+#define LaserDataLen 15
 
 
 void LaserSerial2Data(unsigned char ucData);

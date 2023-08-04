@@ -51,6 +51,9 @@ osThreadId MotorHandle;
 osThreadId LEDHandle;
 osThreadId LaserHandle;
 osThreadId IMUHandle;
+osThreadId controlHandle;
+osSemaphoreId LaserRecHandle;
+osSemaphoreId MotorBusHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -60,6 +63,7 @@ void MotorTask(void const * argument);
 void LEDTask(void const * argument);
 void LaserTask(void const * argument);
 void IMUTask(void const * argument);
+void controlTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -93,6 +97,15 @@ void MX_FREERTOS_Init(void) {
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* definition and creation of LaserRec */
+  osSemaphoreDef(LaserRec);
+  LaserRecHandle = osSemaphoreCreate(osSemaphore(LaserRec), 1);
+
+  /* definition and creation of MotorBus */
+  osSemaphoreDef(MotorBus);
+  MotorBusHandle = osSemaphoreCreate(osSemaphore(MotorBus), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -103,6 +116,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -111,16 +125,20 @@ void MX_FREERTOS_Init(void) {
   LEDHandle = osThreadCreate(osThread(LED), NULL);
 
   /* definition and creation of Laser */
-  osThreadDef(Laser, LaserTask, osPriorityIdle, 0, 128);
+  osThreadDef(Laser, LaserTask, osPriorityAboveNormal, 0, 128);
   LaserHandle = osThreadCreate(osThread(Laser), NULL);
 
   /* definition and creation of IMU */
-  osThreadDef(IMU, IMUTask, osPriorityIdle, 0, 128);
+  osThreadDef(IMU, IMUTask, osPriorityAboveNormal, 0, 128);
   IMUHandle = osThreadCreate(osThread(IMU), NULL);
+
+  /* definition and creation of control */
+  osThreadDef(control, controlTask, osPriorityIdle, 0, 128);
+  controlHandle = osThreadCreate(osThread(control), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-	osThreadDef(Motor, MotorTask, osPriorityIdle, 0, 128);
+	osThreadDef(Motor, MotorTask, osPriorityLow, 0, 256);
   MotorHandle = osThreadCreate(osThread(Motor), NULL);
   /* USER CODE END RTOS_THREADS */
 
@@ -140,7 +158,8 @@ void LEDTask(void const * argument)
 	
   for(;;)
   {
-		Led_Flash(500);
+		
+//		Led_Flash(500);
     osDelay(1);
   }
   /* USER CODE END LEDTask */
@@ -180,6 +199,24 @@ __weak void IMUTask(void const * argument)
     osDelay(1);
   }
   /* USER CODE END IMUTask */
+}
+
+/* USER CODE BEGIN Header_controlTask */
+/**
+* @brief Function implementing the control thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_controlTask */
+__weak void controlTask(void const * argument)
+{
+  /* USER CODE BEGIN controlTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END controlTask */
 }
 
 /* Private application code --------------------------------------------------*/

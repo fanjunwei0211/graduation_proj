@@ -39,3 +39,17 @@ carmasterrtos\stm32f4xx_it.o: ../Core/Inc/usart.h
 carmasterrtos\stm32f4xx_it.o: ../bsp/laser.h
 carmasterrtos\stm32f4xx_it.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 carmasterrtos\stm32f4xx_it.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdio.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+carmasterrtos\stm32f4xx_it.o: ../Core/Inc/FreeRTOSConfig.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
+carmasterrtos\stm32f4xx_it.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h

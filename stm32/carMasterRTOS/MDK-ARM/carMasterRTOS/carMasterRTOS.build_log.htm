@@ -22,25 +22,19 @@ Dialog DLL:      TCM.DLL V1.56.1.0
  
 <h2>Project:</h2>
 E:\projects_gitee\graduation\stm32\carMasterRTOS\MDK-ARM\carMasterRTOS.uvprojx
-Project File Date:  04/13/2023
+Project File Date:  04/17/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\software\keil5\ARM\ARMCC\Bin'
 Build target 'carMasterRTOS'
-compiling nimotion.c...
-..\Nimotion\nimotion.c(205): warning:  #177-D: variable "addi"  was declared but never referenced
-  	uint8_t addi=0;
-..\Nimotion\nimotion.c(474): warning:  #177-D: variable "i"  was declared but never referenced
-  	uint32_t i=0;
-..\Nimotion\nimotion.c(475): warning:  #177-D: variable "error"  was declared but never referenced
-  	uint32_t error=0;//´íÎó×´Ì¬·µ»ØÖµ
-..\Nimotion\nimotion.c(847): warning:  #177-D: variable "isPower"  was declared but never referenced
-  	static char isPower=0;
-..\Nimotion\nimotion.c: 4 warnings, 0 errors
+compiling motor_task.c...
+..\Task\motor_task.c(47): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if(target_yaw_real - yaw > 1.0)
+..\Task\motor_task.c: 1 warning, 0 errors
 linking...
-Program Size: Code=12560 RO-data=1104 RW-data=260 ZI-data=18524  
+Program Size: Code=16912 RO-data=1140 RW-data=316 ZI-data=42116  
 FromELF: creating hex file...
-"carMasterRTOS\carMasterRTOS.axf" - 0 Error(s), 4 Warning(s).
+"carMasterRTOS\carMasterRTOS.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 

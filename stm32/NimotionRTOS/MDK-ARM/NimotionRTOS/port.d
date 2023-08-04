@@ -1,0 +1,12 @@
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+nimotionrtos\port.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stddef.h
+nimotionrtos\port.o: D:\software\keil5\ARM\ARMCC\Bin\..\include\stdint.h
+nimotionrtos\port.o: ../Core/Inc/FreeRTOSConfig.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+nimotionrtos\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h

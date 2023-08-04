@@ -48,4 +48,8 @@ carmasterrtos\motor_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_ti
 carmasterrtos\motor_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 carmasterrtos\motor_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 carmasterrtos\motor_task.o: ../Core/Inc/gpio.h
-carmasterrtos\motor_task.o: ..\Nimotion\nimotion.h
+carmasterrtos\motor_task.o: ../Nimotion/NiMotionMotorSDK.h
+carmasterrtos\motor_task.o: ../Nimotion/NiMotionTest.h
+carmasterrtos\motor_task.o: ../bsp/pid.h
+carmasterrtos\motor_task.o: ../bsp/struct_typedef.h
+carmasterrtos\motor_task.o: ../Core/Inc/usart.h

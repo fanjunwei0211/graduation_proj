@@ -2,22 +2,20 @@
 #include "cmsis_os.h"
 #include "laser.h"
 
-
+extern osSemaphoreId LaserRecHandle;
+BaseType_t aStatus;
 
 void LaserTask(void const * argument)
 {
-	uint8_t num=4;
-	uint8_t temp;
-//	HAL_UART_Receive_IT(&huart2, &temp, 1);
-	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); //使能电机IDLE中断
-	HAL_UART_Receive_DMA(&huart2,LaserRxBuffer,8);
+	osDelay(500);//等待其他模块初始化完成
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart2,LaserRxBuffer1,LaserDataLen);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart4,LaserRxBuffer2,LaserDataLen);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart5,LaserRxBuffer3,LaserDataLen);
+//	LaserDistanceGet(4,0x0003,1);
+//	LaserDistanceGet(5,0x0003,1);
+//	LaserDistanceGet(6,0x0003,1);
   for(;;)
   {
-//		LaserDistanceGet(num,0x0001,1);
-//		LaserDistanceGet(4,0x0001,1);
-		num++;
-		if(num>6) num=4;
-		
-    osDelay(100);
+    osDelay(1);
   }
 }

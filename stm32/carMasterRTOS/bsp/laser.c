@@ -1,9 +1,12 @@
 #include "laser.h"
+#include "cmsis_os.h"
+
+
 
 static unsigned char TxBuffer[256];
-unsigned char	LaserRxBuffer[8];
+char UART2_RX_LEN;
+unsigned char	LaserRxBuffer1[LaserDataLen],LaserRxBuffer2[LaserDataLen],LaserRxBuffer3[LaserDataLen];
 static unsigned char count=0; 
-volatile char laser_RtuFlag = 0;
 uint16_t laserDis[3]={0,0,0};  
 static const uint8_t aucCRCHi[] =
 {
@@ -195,6 +198,8 @@ void laserOpenClose(uint8_t address, int mode){
  * @param  usTimeout      超时时间,单位毫秒
  * @param  pusRegBuffer   存储读取到的寄存器值
  */
+//连续测距 060300030001
+//单次测距 060300010001
 void LaserDistanceGet(uint8_t ucSlaveAddress, uint16_t usAddress, uint16_t usNum)
 {
 	
@@ -210,10 +215,16 @@ void LaserDistanceGet(uint8_t ucSlaveAddress, uint16_t usAddress, uint16_t usNum
 	crc = usMBCRC16( ( uint8_t * )ucBuf, 6);
 	ucBuf[6] = ( uint8_t )( crc & 0xFF );
 	ucBuf[7] = ( uint8_t )( crc >> 8 );
-	HAL_UART_Transmit(&huart2, (uint8_t *)ucBuf, 8, 100);
+	if(ucSlaveAddress == 4)
+		HAL_UART_Transmit(&huart2, (uint8_t *)ucBuf, 8, 100);
+	if(ucSlaveAddress == 5)
+		HAL_UART_Transmit(&huart4, (uint8_t *)ucBuf, 8, 100);
+	if(ucSlaveAddress == 5)
+		HAL_UART_Transmit(&huart5, (uint8_t *)ucBuf, 8, 100);
+		
 }
 
-//连续测距开关
+
 void LaserDistanceGetSerial(uint8_t ucSlaveAddress, uint16_t usAddress, uint16_t usNum)
 {
 	

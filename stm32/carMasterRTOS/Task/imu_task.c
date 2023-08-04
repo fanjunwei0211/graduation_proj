@@ -33,10 +33,11 @@ void Imu_init()
 void IMUTask(void const * argument)
 {
 	Imu_init();
+	osDelay(1000);//等待陀螺仪数据回传
+	init_yaw = (float)stcAngle.Angle[2]/32768*180;
   for(;;)
   {
 		yaw=(float)stcAngle.Angle[2]/32768*180;
-		
     osDelay(2);
   }
 } 	
